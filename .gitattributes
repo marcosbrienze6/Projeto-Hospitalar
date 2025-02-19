@@ -5,11 +5,27 @@
 *.html diff=html
 *.md diff=markdown
 *.php diff=php
+*.js diff=javascript
+*.json diff=json
 
 *.php linguist-detectable=true
 *.blade.php linguist-detectable=true
+*.js linguist-detectable=true
+*.css linguist-detectable=true
+*.html linguist-detectable=false
+*.xml linguist-detectable=false
 *.vba linguist-detectable=false
+*.vb linguist-detectable=false
+*.bas linguist-detectable=false
+*.frm linguist-detectable=false
+*.cls linguist-detectable=false
 
 /.github export-ignore
+/tests export-ignore
+/docs export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+phpunit.xml export-ignore
+README.md export-ignore
