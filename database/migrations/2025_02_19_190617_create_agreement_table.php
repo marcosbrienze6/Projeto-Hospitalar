@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('doctor', function (Blueprint $table) {
+        Schema::create('agreement', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('CRM')->unique();
-            $table->string('specialty');
-            $table->date('hire_of_date');
-            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('doctor');
+        Schema::dropIfExists('agreement');
     }
 };
