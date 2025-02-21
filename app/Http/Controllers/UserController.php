@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Models\User;
-use App\Services\UserService;
-
+use App\Http\Services\UserService;
 
 class UserController extends Controller
 {

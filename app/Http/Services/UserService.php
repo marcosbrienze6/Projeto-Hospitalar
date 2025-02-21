@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Services;
 
-use App\Http\Requests\CreateUserRequest;
 use App\Models\User;
 
 class UserService

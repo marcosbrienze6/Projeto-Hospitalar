@@ -12,4 +12,6 @@ Route::prefix('user')->group(function () {
     Route::post('/', [UserController::class, 'create']);
     Route::get('/all', [UserController::class, 'indexAll']);
     Route::get('/get-user/{id}', [UserController::class, 'index']);
+    Route::post('/{id}', [UserController::class, 'update']);
+    Route::delete('/{id}', [UserController::class, 'delete']);
 });
