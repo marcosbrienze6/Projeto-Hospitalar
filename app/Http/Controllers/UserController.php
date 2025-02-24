@@ -23,7 +23,7 @@ class UserController extends Controller
     public function index($id)
     {
         $user = $this->userService->get($id);
-        return response()->json(['error' => false, 'user' => $user]);
+        return response()->json(['error' => false, 'message' => "Usuário encontrado.", 'user' => $user]);
     }
 
     public function create(CreateUserRequest $request)
