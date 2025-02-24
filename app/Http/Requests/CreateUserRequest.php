@@ -23,7 +23,7 @@ class CreateUserRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'access_level_id' => 'nullable',
+            'access_level_id' => 'required|exists:access_level,id',
             'email' => 'required|string|max:255',
             'password' => 'required|string|min:8'
         ];
