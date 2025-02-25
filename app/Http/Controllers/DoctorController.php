@@ -31,15 +31,15 @@ class DoctorController extends Controller
 
     public function create(CreateDoctorRequest $request)
     {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['error' => true, 'message' => 'Usuário não autenticado.'], 401);
-        }
-
         $data = $request->validated();
         $doctor = $this->serviceInstance->create($data);
 
         return response()->json(['error' => false, 'message' => "Médico registrado com sucesso.", 'user' => $doctor]);
+    }
+
+    public function addDoctor(AddDoctorRequest $request)
+    {
+
     }
 
     public function update(UpdateDoctorRequest $request, $doctorId)
@@ -57,6 +57,11 @@ class DoctorController extends Controller
 
     public function delete($doctorId)
     {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => true, 'message' => 'Usuário não autenticado.'], 401);
+        }
+
        $doctor = $this->serviceInstance->delete($doctorId);
        return response()->json(['error' => false, 'message' => "Médico deletado com sucesso.", 'Usuário deletado' => $doctor]);
     }
