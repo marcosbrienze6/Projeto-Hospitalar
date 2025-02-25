@@ -11,17 +11,14 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('auth')->group(function () {
-    Route::middleware('api')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->name('login');
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::put('/{id}', [AuthController::class, 'update']);
         Route::delete('/{id}', [AuthController::class, 'delete']);
        
-
     Route::prefix('doctor')->group(function () {
         Route::put('/{id}', [DoctorController::class, 'update']);
         Route::delete('/{id}', [DoctorController::class, 'delete']);
-        });    
     });
 });
 
