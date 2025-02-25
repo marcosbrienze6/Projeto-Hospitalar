@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\Doctor;
+use Illuminate\Support\Str;
 
 class DoctorService
 {
@@ -18,12 +19,13 @@ class DoctorService
 
     public function create($data)
     {
+        $data['CRM'] = Str::upper(Str::random(8));
         return Doctor::create($data);
     }
 
-    public function update($id, $data)
+    public function update($doctorId, $data)
     {
-        $user = Doctor::find($id);
+        $user = Doctor::find($doctorId);
         $user->update($data);
         return $user;
     }

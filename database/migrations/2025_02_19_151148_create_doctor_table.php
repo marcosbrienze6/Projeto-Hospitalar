@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('doctor', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('CRM')->unique();
+            $table->string('CRM', 8)->unique();
             $table->string('specialty');
             $table->date('hire_of_date');
             $table->softDeletes();

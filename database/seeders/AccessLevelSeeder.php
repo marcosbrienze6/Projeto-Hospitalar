@@ -14,8 +14,8 @@ class AccessLevelSeeder extends Seeder
     {
         DB::table('access_level')->insert([
             ['id' => 1, 'name' => 'Admin', 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 2, 'name' => 'Editor', 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 3, 'name' => 'User', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2, 'name' => 'Doctor', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3, 'name' => 'Enfermeiro', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

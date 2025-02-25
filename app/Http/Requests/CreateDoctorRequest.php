@@ -11,7 +11,7 @@ class CreateDoctorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class CreateDoctorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'specialty' => 'required|string|max:255',
+            'agreement' => 'nullable|string',
+            'hire_of_date' => 'required|date'
         ];
     }
 }

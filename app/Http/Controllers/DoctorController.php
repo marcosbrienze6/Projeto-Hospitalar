@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Http\Services\DoctorService;
+use Illuminate\Support\Facades\Auth;
+
 
 class DoctorController extends Controller
 {
@@ -29,6 +31,11 @@ class DoctorController extends Controller
 
     public function create(CreateDoctorRequest $request)
     {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => true, 'message' => 'Usuário não autenticado.'], 401);
+        }
+
         $data = $request->validated();
         $doctor = $this->serviceInstance->create($data);
 
@@ -37,8 +44,13 @@ class DoctorController extends Controller
 
     public function update(UpdateDoctorRequest $request, $doctorId)
     {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => true, 'message' => 'Usuário não autenticado.'], 401);
+        }
+
         $data = $request->validated();
-        $doctor = $this->serviceInstance->update($data, $doctorId);
+        $doctor = $this->serviceInstance->update($doctorId, $data);
 
         return response()->json(['error' => false, 'message' => "Médico atualizado com sucesso.", 'user' => $doctor]);
     }
@@ -46,6 +58,6 @@ class DoctorController extends Controller
     public function delete($doctorId)
     {
        $doctor = $this->serviceInstance->delete($doctorId);
-        return response()->json(['error' => false, 'message' => "Médico deletado com sucesso.", 'Usuário deletado' => $doctor]);
+       return response()->json(['error' => false, 'message' => "Médico deletado com sucesso.", 'Usuário deletado' => $doctor]);
     }
 }
