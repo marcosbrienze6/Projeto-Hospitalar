@@ -23,8 +23,6 @@ class CreateDoctorRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'specialty' => 'required|string|max:255',
-            'agreement' => 'nullable|string',
             'hire_of_date' => 'required|date'
         ];
     }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Agreement;
+use App\Models\Specialty;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        Agreement::factory(10)->create();
+        // Agreement::factory(10)->create();
+        Specialty::factory(10)->create();
 
     }
 }

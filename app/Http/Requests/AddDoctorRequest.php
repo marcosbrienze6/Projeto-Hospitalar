@@ -11,7 +11,7 @@ class AddDoctorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class AddDoctorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'agreement_id' => 'nullable|exists:agreement,id',
+            'specialty_id' => 'nullable|exists:specialty,id',
+            'doctor_id' => 'required|exists:doctor,id'
         ];
     }
 }
