@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('CRM', 8)->unique();
-            $table->string('specialty');
             $table->date('hire_of_date');
             $table->softDeletes();
             $table->timestamps();
         });
     }
+
+                    //ADICIONAR TABELA DE ESPECIALIDADES E POPULAR COM FACTORY, E INCREMENTAR LOGICA NA DOCTOR CONTROLLER
 
     /**
      * Reverse the migrations.

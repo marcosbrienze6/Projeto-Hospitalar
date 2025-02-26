@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddDoctorRequest;
 use App\Http\Requests\CreateDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Http\Services\DoctorService;
+use App\Models\Agreement;
+use App\Models\Doctor;
+use App\Models\MedicalAgreement;
+use App\Models\MedicalSpecialty;
+use App\Models\Specialty;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -37,9 +43,58 @@ class DoctorController extends Controller
         return response()->json(['error' => false, 'message' => "Médico registrado com sucesso.", 'user' => $doctor]);
     }
 
-    public function addDoctor(AddDoctorRequest $request)
+    public function addDoctorToAgreement(AddDoctorRequest $request)
     {
+        $data = $request->validated();
 
+        $doctor = Doctor::findOrFail($data['agreement_id']);
+        $agreement = Agreement::findOrFail($data['doctor_id']);
+
+        $existingDoctor = MedicalAgreement::where('agreement_id', $agreement->id)
+        ->where('doctor_id', $doctor->id)
+        ->exists();
+
+        if ($existingDoctor) {
+            return response()->json([
+            'error' => true,
+            'message' => 'Não é possível adicionar o mesmo convênio duas vezes.'
+            ]);
+        } 
+
+        $agreement = MedicalAgreement::create($data);
+
+        return response()->json([
+            'message' => 'Médico adicionado ao convênio com sucesso',
+            'agreement' => $agreement,
+            'doctor' => $doctor
+        ]);
+    }
+
+    public function addDoctorToSpecialty(AddDoctorRequest $request)
+    {
+        $data = $request->validated();
+        
+        $doctor = Doctor::findOrFail($data['specialty_id']);
+        $specialty = Specialty::findOrFail($data['doctor_id']);
+        
+        $existingDoctor = MedicalSpecialty::where('specialty_id', $specialty->id)
+        ->where('doctor_id', $doctor->id)
+        ->exists();
+        
+        if ($existingDoctor) {
+            return response()->json([
+            'error' => true,
+            'message' => 'Não é possível adicionar a mesma especialidade duas vezes.'
+            ]);
+        } 
+
+        $specialty = MedicalSpecialty::create($data);
+
+        return response()->json([
+            'message' => 'Médico adicionado ao convênio com sucesso',
+            'agreement' => $specialty,
+            'doctor' => $doctor
+        ]);
     }
 
     public function update(UpdateDoctorRequest $request, $doctorId)
