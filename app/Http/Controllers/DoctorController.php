@@ -53,7 +53,7 @@ class DoctorController extends Controller
         $existingDoctor = MedicalAgreement::where('agreement_id', $agreement->id)
         ->where('doctor_id', $doctor->id)
         ->exists();
-
+                                                                    //SEPARAR A LOGICA COM A SERVICE
         if ($existingDoctor) {
             return response()->json([
             'error' => true,
