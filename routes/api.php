@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\UserController;
@@ -11,11 +12,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('auth')->group(function () {
-        Route::post('/login', [AuthController::class, 'login'])->name('login');
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::put('/{id}', [AuthController::class, 'update']);
-        Route::delete('/{id}', [AuthController::class, 'delete']);
-       
+    Route::middleware('auth.jwt')->group(function () {
+
     Route::prefix('doctor')->group(function () {
         Route::post('/', [DoctorController::class, 'create']);
         Route::put('/{id}', [DoctorController::class, 'update']);
@@ -23,9 +21,19 @@ Route::prefix('auth')->group(function () {
         Route::post('/add-agreement', [DoctorController::class, 'addDoctorToAgreement']);
         Route::post('/add-specialty', [DoctorController::class, 'addDoctorToSpecialty']);
     });
+
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::delete('/{id}', [AuthController::class, 'delete']);
+    Route::put('/{id}', [AuthController::class, 'update']);
+
+    Route::prefix('appointment')->group(function () {
+        Route::post('/', [AppointmentController::class, 'create']);
+    });
+    
+    });
+        Route::post('/login', [AuthController::class, 'login'])->name('login');   
 });
 
-//SEM AUTENTICAÇÂO
 Route::prefix('doctor')->group(function () {
     Route::get('/all', [DoctorController::class, 'indexAll']);
     Route::get('/{id}', [DoctorController::class, 'index']);

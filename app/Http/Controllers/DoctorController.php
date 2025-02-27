@@ -47,13 +47,13 @@ class DoctorController extends Controller
     {
         $data = $request->validated();
 
-        $doctor = Doctor::findOrFail($data['agreement_id']);
-        $agreement = Agreement::findOrFail($data['doctor_id']);
+        $doctor = Doctor::findOrFail($data['doctor_id']);
+        $agreement = Agreement::findOrFail($data['agreement_id']);
 
         $existingDoctor = MedicalAgreement::where('agreement_id', $agreement->id)
         ->where('doctor_id', $doctor->id)
         ->exists();
-                                                                    //SEPARAR A LOGICA COM A SERVICE
+                                                                   
         if ($existingDoctor) {
             return response()->json([
             'error' => true,
@@ -74,8 +74,8 @@ class DoctorController extends Controller
     {
         $data = $request->validated();
         
-        $doctor = Doctor::findOrFail($data['specialty_id']);
-        $specialty = Specialty::findOrFail($data['doctor_id']);
+        $doctor = Doctor::findOrFail($data['doctor_id']);
+        $specialty = Specialty::findOrFail($data['specialty_id']);
         
         $existingDoctor = MedicalSpecialty::where('specialty_id', $specialty->id)
         ->where('doctor_id', $doctor->id)
@@ -99,10 +99,7 @@ class DoctorController extends Controller
 
     public function update(UpdateDoctorRequest $request, $doctorId)
     {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['error' => true, 'message' => 'Usuário não autenticado.'], 401);
-        }
+        
 
         $data = $request->validated();
         $doctor = $this->serviceInstance->update($doctorId, $data);

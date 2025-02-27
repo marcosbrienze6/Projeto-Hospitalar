@@ -22,12 +22,12 @@ class CreateAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'topic' => 'required|string|max:255',
             'patient_id' => 'required|exists:patient,id',
             'doctor_id' => 'required|exists:doctor,id',
-            'appointment_date' => 'required|date',
-            'appointment_time' => 'required|time',
-            'status' => 'required|in:active,inactive'
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'appointment_time' => 'required|date_format:H:i',
+            'status' => 'required|in:active,cancelled,completed'
         ];
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CorsMiddleware;
 
+
 use Illuminate\Validation\ValidationException;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -18,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function ($middleware) {
+        $middleware->append(CorsMiddleware::class);
+        $middleware->alias([
+            'auth.jwt' => \App\Http\Middleware\AuthMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $exception, Request $request) {
@@ -53,11 +58,11 @@ return Application::configure(basePath: dirname(__DIR__))
                     $response['message'] = 'Erro interno no servidor.';
                 }
             }
-            // return new JsonResponse(
-            //     $response,
-            //     $statusCode,
-            //     $exception instanceof HttpException ? $exception->getHeaders() : [],
-            //     JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-            // );
+            return new JsonResponse(
+                $response,
+                $statusCode,
+                $exception instanceof HttpException ? $exception->getHeaders() : [],
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            );
         });
     })->create();
