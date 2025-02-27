@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('appointment', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('topic');
+            $table->string('code', 12)->unique();
             $table->foreignId('patient_id')->constrained('patient');
             $table->foreignId('doctor_id')->constrained('doctor');
             $table->date('appointment_date');
             $table->time('appointment_time');
-            $table->boolean('status');
+            $table->string('status');
             $table->timestamps();
         });
     }

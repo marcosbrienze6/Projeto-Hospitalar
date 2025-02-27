@@ -21,8 +21,6 @@ return new class extends Migration
         });
     }
 
-                    //ADICIONAR TABELA DE ESPECIALIDADES E POPULAR COM FACTORY, E INCREMENTAR LOGICA NA DOCTOR CONTROLLER
-
     /**
      * Reverse the migrations.
      */

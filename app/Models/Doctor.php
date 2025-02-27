@@ -12,10 +12,15 @@ class Doctor extends Model
 
     protected $table = 'doctor';
 
-    protected $fillable = ['name', 'hire_of_date'];
+    protected $fillable = ['name', 'CRM', 'hire_of_date'];
 
     public function agreement()
     {
         return $this->belongsToMany(Agreement::class, 'medical_agreement');
+    }
+
+    public function specialty()
+    {
+        return $this->belongsToMany(Specialty::class, 'medical_specialty');
     }
 }

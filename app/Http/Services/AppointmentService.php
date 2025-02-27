@@ -20,7 +20,7 @@ class AppointmentService
 
     public function create($data)
     {
-        $data['CRM'] = Str::upper(Str::random(8));
+        $data['code'] = Str::upper(Str::random(12));
         return Appointment::create($data);
     }
 
