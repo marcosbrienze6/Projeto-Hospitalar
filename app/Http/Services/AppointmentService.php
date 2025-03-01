@@ -26,14 +26,14 @@ class AppointmentService
 
     public function update($appointmentId, $data)
     {
-        $user = Appointment::find($appointmentId);
-        $user->update($data);
-        return $user;
+        $appointment = Appointment::find($appointmentId);
+        $appointment->update($data);
+        return $appointment;
     }
 
     public function delete($id)
     {
-        $user = Appointment::find($id);
-        $user->delete();
+        $appointment = Appointment::find($id);
+        $appointment->delete();
     }
 }

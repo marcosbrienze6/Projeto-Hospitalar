@@ -28,6 +28,9 @@ Route::prefix('auth')->group(function () {
 
     Route::prefix('appointment')->group(function () {
         Route::post('/', [AppointmentController::class, 'create']);
+        Route::put('/{id}', [AppointmentController::class, 'update']);
+        Route::delete('/{id}', [AppointmentController::class, 'delete']);
+        Route::get('/all', [AppointmentController::class, 'getAll']);
     });
     
     });
