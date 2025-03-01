@@ -99,8 +99,6 @@ class DoctorController extends Controller
 
     public function update(UpdateDoctorRequest $request, $doctorId)
     {
-        
-
         $data = $request->validated();
         $doctor = $this->serviceInstance->update($doctorId, $data);
 
