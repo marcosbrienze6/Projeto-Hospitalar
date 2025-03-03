@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
 use App\Http\Services\AppointmentService;
-use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
-use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
@@ -23,8 +21,17 @@ class AppointmentController extends Controller
         $data = $request->validated();
         $appointment = $this->appointmentService->create($data);
 
-        $doctor = Doctor::with('specialty')->with('agreement')->findOrFail($data['doctor_id']);
+        $doctor = Doctor::with('specialty', 'agreement')->findOrFail($data['doctor_id']);
         $patient = Patient::findOrFail($data['patient_id']);
+
+        $doctorAgreementIds = $doctor->agreement->pluck('id')->toArray(); 
+
+        if (!in_array($patient->agreement_id, $doctorAgreementIds)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'O paciente só pode marcar consultas com médicos do mesmo convênio.'
+            ], 422);
+        }
 
         return response()->json([
         'error' => false,
@@ -38,7 +45,17 @@ class AppointmentController extends Controller
     public function getAll()
     {
         $allAppointments = $this->appointmentService->getAll();
-        return response()->json(['error' => false,'users' => $allAppointments]);
+        return response()->json(['error' => false,'Consultas encontradas' => $allAppointments]);
+    }
+
+    public function getPerId($id)
+    {
+        $appointment = $this->appointmentService->get($id);
+
+        return response()->json([
+            'error' => false,
+            'Consulta encontrada' => $appointment
+        ]);
     }
 
     public function update(UpdateAppointmentRequest $request, $appointmentId)
@@ -46,7 +63,15 @@ class AppointmentController extends Controller
         $data = $request->validated();
         $appointment = $this->appointmentService->update($appointmentId, $data);
 
-        return response()->json(['error' => false, 'Consulta atualizada com sucesso.' => $appointment]);
+        $doctor = Doctor::with('specialty')->with('agreement')->findOrFail($data['doctor_id']);
+        $patient = Patient::findOrFail($data['patient_id']);
+
+        return response()->json([
+            'error' => false,
+            'Consulta atualizada com sucesso.' => $appointment,
+            'Paciente' => $patient,
+            'Médico responsável' => $doctor,
+            ]);
     }
 
     public function delete($appointmentId)

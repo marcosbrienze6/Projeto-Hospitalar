@@ -31,6 +31,7 @@ Route::prefix('auth')->group(function () {
         Route::put('/{id}', [AppointmentController::class, 'update']);
         Route::delete('/{id}', [AppointmentController::class, 'delete']);
         Route::get('/all', [AppointmentController::class, 'getAll']);
+        Route::get('/{id}', [AppointmentController::class, 'getPerId']);
     });
     
     });
