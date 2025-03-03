@@ -13,4 +13,9 @@ class Patient extends Model
 
     protected $fillable = ['name', 'address', 'cpf', 'phone_number'];
 
+    public function agreement()
+    {
+        return $this->belongsToMany(Agreement::class, 'medical_agreement');
+    }
+
 }
