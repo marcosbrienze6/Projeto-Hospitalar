@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Models\MedicalAgreement;
 use App\Models\Patient;
 
 class PatientService
@@ -28,9 +29,21 @@ class PatientService
         return $user;
     }
 
-    public function delete($id)
+    public function removePatient($patientId, $agreementId)
+    {
+        return MedicalAgreement::where('patient_id', $patientId)
+        ->where('agreement_id', $agreementId)
+        ->delete();
+    }
+
+    public function deletePatient($id) 
     {
         $user = Patient::find($id);
-        $user->delete();
+
+        if (!$user) {
+            throw new \Exception('Paciente não encontrado.');
+        }
+
+        return $user->delete();
     }
 }

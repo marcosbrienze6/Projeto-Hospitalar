@@ -23,8 +23,9 @@ class UpdatePatientRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string|max:255',
-            'specialty' => 'nullable|string|max:255',
             'agreement' => 'nullable|string',
+            'agreement_id' => 'nullable|exists:agreement,id',
+            'patient_id' => 'nullable|exists:patient,id'
         ];
     }
 }

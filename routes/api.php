@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,15 @@ Route::prefix('auth')->group(function () {
         Route::delete('/{id}', [DoctorController::class, 'delete']);
         Route::post('/add-agreement', [DoctorController::class, 'addDoctorToAgreement']);
         Route::post('/add-specialty', [DoctorController::class, 'addDoctorToSpecialty']);
+    });
+
+    Route::prefix('patient')->group(function () {
+        Route::post('/', [PatientController::class, 'create']);
+        Route::put('/{id}', [PatientController::class, 'update']);
+        Route::delete('/{id}', [PatientController::class, 'delete']);
+        Route::post('/add-agreement', [PatientController::class, 'addPatientToAgreement']);
+        Route::delete('/remove-agreement', [PatientController::class, 'removePatientFromAgreement']);
+        Route::post('/add-specialty', [PatientController::class, 'addPatientToSpecialty']);
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
