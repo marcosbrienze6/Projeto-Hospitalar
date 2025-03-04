@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('cpf')->unique();
             $table->string('phone_number');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

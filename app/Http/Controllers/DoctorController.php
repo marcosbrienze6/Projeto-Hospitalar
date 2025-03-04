@@ -61,12 +61,13 @@ class DoctorController extends Controller
             ]);
         } 
 
-        $agreement = MedicalAgreement::create($data);
+        $res = MedicalAgreement::create($data);
 
         return response()->json([
             'message' => 'Médico adicionado ao convênio com sucesso',
-            'agreement' => $agreement,
-            'doctor' => $doctor
+            'Médico' => $doctor,
+            'Convênio' => $agreement,
+            'Dados da adição' => $res,
         ]);
     }
 
@@ -92,8 +93,8 @@ class DoctorController extends Controller
 
         return response()->json([
             'message' => 'Médico adicionado ao convênio com sucesso',
-            'agreement' => $specialty,
-            'doctor' => $doctor
+            'Especialidade' => $specialty,
+            'Médico' => $doctor
         ]);
     }
 

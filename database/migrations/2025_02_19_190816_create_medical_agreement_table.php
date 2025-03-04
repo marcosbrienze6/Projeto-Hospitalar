@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('medical_agreement', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('agreement_id')->constrained('agreement');
-            $table->foreignId('doctor_id')->constrained('doctor');
+            $table->foreignId('agreement_id')->constrained('agreement')->default(1);
+            $table->foreignId('doctor_id')->nullable()->constrained('doctor');
+            $table->foreignId('patient_id')->nullable()->constrained('patient');
             $table->timestamps();
         });
     }

@@ -30,9 +30,9 @@ class PatientController extends Controller
 
     }
 
-    public function index($doctorId)
+    public function index($patientId)
     {
-        $doctor = $this->patientService->get($doctorId);
+        $doctor = $this->patientService->get($patientId);
         return response()->json(['error' => false, 'message' => "Médico encontrado.", 'user' => $doctor]);
     }
 
@@ -41,79 +41,74 @@ class PatientController extends Controller
         $data = $request->validated();
         $doctor = $this->patientService->create($data);
 
-        return response()->json(['error' => false, 'message' => "Médico registrado com sucesso.", 'user' => $doctor]);
+        return response()->json(['error' => false, 'message' => "Paciente registrado com sucesso.", 'user' => $doctor]);
     }
 
     public function addPatientToAgreement(AddPatientRequest $request)
     {
         $data = $request->validated();
 
-        $doctor = Patient::findOrFail($data['doctor_id']);
+        $patient = Patient::findOrFail($data['patient_id']);
+        $agreement = Agreement::findOrFail($data['agreement_id']);
+        
+        $existingPatient = MedicalAgreement::where('agreement_id', $agreement->id)
+        ->where('patient_id', $patient->id)
+        ->exists();
+
+        if ($existingPatient) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Não é possível adicionar o mesmo convênio duas vezes.'
+            ]);
+        } 
+        
+        $res = MedicalAgreement::create($data);
+
+        return response()->json([
+        'error' => false,
+        'message' => 'Paciente adicionado ao convênio com sucesso',
+        'Paciente' => $patient,
+        'Convênio' => $agreement,
+        'Dados da adição' => $res
+        ]);
+    }
+
+    public function removePatientFromAgreement(UpdatePatientRequest $request)
+    {
+        $data = $request->validated();
+
+        $patient = Patient::findOrFail($data['patient_id']);
         $agreement = Agreement::findOrFail($data['agreement_id']);
 
-        $existingDoctor = MedicalAgreement::where('agreement_id', $agreement->id)
-        ->where('doctor_id', $doctor->id)
-        ->exists();
-                                                                   
-        if ($existingDoctor) {
+        $res = $this->patientService->removePatient($data['patient_id'], $data['agreement_id']);
+
+        if ($res === 0) {
             return response()->json([
-            'error' => true,
-            'message' => 'Não é possível adicionar o mesmo convênio duas vezes.'
-            ]);
-        } 
-
-        $agreement = MedicalAgreement::create($data);
-
-        return response()->json([
-            'message' => 'Médico adicionado ao convênio com sucesso',
-            'agreement' => $agreement,
-            'doctor' => $doctor
-        ]);
-    }
-
-    public function addDoctorToSpecialty(AddPatientRequest $request)
-    {
-        $data = $request->validated();
-        
-        $doctor = Patient::findOrFail($data['doctor_id']);
-        $specialty = Specialty::findOrFail($data['specialty_id']);
-        
-        $existingDoctor = MedicalSpecialty::where('specialty_id', $specialty->id)
-        ->where('doctor_id', $doctor->id)
-        ->exists();
-        
-        if ($existingDoctor) {
-            return response()->json([
-            'error' => true,
-            'message' => 'Não é possível adicionar a mesma especialidade duas vezes.'
-            ]);
-        } 
-
-        $specialty = MedicalSpecialty::create($data);
-
-        return response()->json([
-            'message' => 'Médico adicionado ao convênio com sucesso',
-            'agreement' => $specialty,
-            'doctor' => $doctor
-        ]);
-    }
-
-    public function update(UpdatePatientRequest $request, $doctorId)
-    {
-        $data = $request->validated();
-        $doctor = $this->patientService->update($doctorId, $data);
-
-        return response()->json(['error' => false, 'message' => "Médico atualizado com sucesso.", 'user' => $doctor]);
-    }
-
-    public function delete($doctorId)
-    {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['error' => true, 'message' => 'Usuário não autenticado.'], 401);
+                'error' => true,
+                'message' => 'Nenhuma relação encontrada para deletar.'
+            ], 404);
         }
 
-       $doctor = $this->patientService->delete($doctorId);
-       return response()->json(['error' => false, 'message' => "Médico deletado com sucesso.", 'Usuário deletado' => $doctor]);
+        return response()->json([
+        'error' => false,
+        'message' => 'Paciente removido do convênio com sucesso',
+        'Paciente' => $patient,
+        'Convênio' => $agreement,
+        'Registros deletados' => $res
+        ]);
+    }
+
+    public function update(UpdatePatientRequest $request, $patientId)
+    {
+        $data = $request->validated();
+        $patient = $this->patientService->update($patientId, $data);
+
+        return response()->json(['error' => false, 'message' => "Paciente atualizado com sucesso.", 'user' => $patient]);
+    }
+
+    public function delete($patientId)
+    {
+       $patient = $this->patientService->deletePatient($patientId);
+       return response()->json(['error' => false, 'message' => "Paciente deletado com sucesso.", 'Usuário deletado' => $patient]);
     }
 }
