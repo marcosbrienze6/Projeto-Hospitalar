@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('topic');
             $table->string('code', 12)->unique();
-            $table->foreignId('patient_id')->constrained('patient');
-            $table->foreignId('doctor_id')->constrained('doctor');
+            $table->foreignId('patient_id')->constrained('patient')->onDelete('cascade');
+            $table->foreignId('doctor_id')->constrained('doctor')->onDelete('cascade');
             $table->date('appointment_date');
             $table->time('appointment_time');
             $table->string('status');

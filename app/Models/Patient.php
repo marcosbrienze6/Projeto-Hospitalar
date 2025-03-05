@@ -18,4 +18,9 @@ class Patient extends Model
     {
         return $this->belongsToMany(Agreement::class, 'medical_agreement');
     }
+
+    public function plan()
+    {
+        return $this->belongsTo(HealthPlan::class, 'patient_plan');
+    }
 }

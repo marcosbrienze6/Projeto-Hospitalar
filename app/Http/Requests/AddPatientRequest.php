@@ -22,7 +22,8 @@ class AddPatientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'agreement_id' => 'required|exists:agreement,id',
+            'agreement_id' => 'nullable|exists:agreement,id',
+            'plan_id' => 'nullable|exists:health_plan,id',
             'patient_id' => 'required|exists:patient,id'
         ];
     }
