@@ -27,9 +27,16 @@ Route::prefix('auth')->group(function () {
         Route::post('/', [PatientController::class, 'create']);
         Route::put('/{id}', [PatientController::class, 'update']);
         Route::delete('/{id}', [PatientController::class, 'delete']);
-        Route::post('/add-agreement', [PatientController::class, 'addPatientToAgreement']);
-        Route::delete('/remove-agreement', [PatientController::class, 'removePatientFromAgreement']);
-        Route::post('/add-specialty', [PatientController::class, 'addPatientToSpecialty']);
+
+        Route::prefix('agreement')->group(function () {
+            Route::post('/add', [PatientController::class, 'addAgreement']);
+            Route::delete('/remove', [PatientController::class, 'removeAgreement']);
+        });
+
+        Route::prefix('plan')->group(function () {
+            Route::post('/add', [PatientController::class, 'addPlan']);
+            Route::post('/remove', [PatientController::class, 'removePlan']);
+        });
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -7,6 +7,7 @@ use App\Http\Requests\CreatePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Http\Services\PatientService;
 use App\Models\Agreement;
+use App\Models\HealthPlan;
 use App\Models\MedicalAgreement;
 use App\Models\MedicalSpecialty;
 use App\Models\Patient;
@@ -44,26 +45,33 @@ class PatientController extends Controller
         return response()->json(['error' => false, 'message' => "Paciente registrado com sucesso.", 'user' => $doctor]);
     }
 
-    public function addPatientToAgreement(AddPatientRequest $request)
+    public function addPlan(AddPatientRequest $request)
+    {   
+        $data = $request->validated();
+
+        $patient = Patient::findOrFail($data['patient_id']);
+        $plan = HealthPlan::findOrFail($data['plan_id']);
+
+        $res = $this->patientService->addPlan($data['patient_id'], $data['plan_id']);
+ 
+        return response()->json([
+        'error' => false,
+        'message' => 'Paciente adicionado ao plano com sucesso',
+        'Paciente' => $patient,
+        'Plano escolhido' => $plan,
+        'Dados da adição' => $res
+        ]);
+    }
+
+    public function addAgreement(AddPatientRequest $request)
     {
         $data = $request->validated();
 
         $patient = Patient::findOrFail($data['patient_id']);
         $agreement = Agreement::findOrFail($data['agreement_id']);
         
-        $existingPatient = MedicalAgreement::where('agreement_id', $agreement->id)
-        ->where('patient_id', $patient->id)
-        ->exists();
-
-        if ($existingPatient) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Não é possível adicionar o mesmo convênio duas vezes.'
-            ]);
-        } 
+        $res = $this->patientService->addAgreement($data['patient_id'], $data['agreement_id']);;
         
-        $res = MedicalAgreement::create($data);
-
         return response()->json([
         'error' => false,
         'message' => 'Paciente adicionado ao convênio com sucesso',
@@ -73,14 +81,14 @@ class PatientController extends Controller
         ]);
     }
 
-    public function removePatientFromAgreement(UpdatePatientRequest $request)
+    public function removeAgreement(UpdatePatientRequest $request)
     {
         $data = $request->validated();
 
         $patient = Patient::findOrFail($data['patient_id']);
         $agreement = Agreement::findOrFail($data['agreement_id']);
 
-        $res = $this->patientService->removePatient($data['patient_id'], $data['agreement_id']);
+        $res = $this->patientService->removeAgreement($data['patient_id'], $data['agreement_id']);
 
         if ($res === 0) {
             return response()->json([

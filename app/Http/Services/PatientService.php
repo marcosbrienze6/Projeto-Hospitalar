@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Models\MedicalAgreement;
 use App\Models\Patient;
+use App\Models\PatientPlan;
 
 class PatientService
 {
@@ -29,9 +30,41 @@ class PatientService
         return $user;
     }
 
-    public function removePatient($patientId, $agreementId)
+    public function addPlan($patientId, $planId)
     {
-        return MedicalAgreement::where('patient_id', $patientId)
+        $plan = PatientPlan::where('patient_id', $patientId)
+        ->where('plan_id', $planId)
+        ->exists();
+
+        if($plan){
+            throw new \Exception('Não é possivel adicionar o mesmo plano duas vezes.');
+        }
+
+        return PatientPlan::create([
+            'patient_id' => $patientId,
+            'plan_id' => $planId
+        ]);
+    }
+
+    public function addAgreement($patientId, $agreementId)
+    {
+        $agreement = MedicalAgreement::where('patient_id', $patientId)
+        ->where('agreement_id', $agreementId)
+        ->exists();
+
+        if($agreement){
+            throw new \Exception('Não é possivel adicionar o mesmo convênio duas vezes.');
+        }
+
+        return MedicalAgreement::create([
+            'patient_id' => $patientId,
+            'agreement_id' => $agreementId
+        ]);
+    }
+
+    public function removeAgreement($patientId, $agreementId)
+    {
+        $agreement = MedicalAgreement::where('patient_id', $patientId)
         ->where('agreement_id', $agreementId)
         ->delete();
     }

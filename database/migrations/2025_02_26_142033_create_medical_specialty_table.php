@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('medical_specialty', function (Blueprint $table) {
             $table->id();
             $table->foreignId('specialty_id')->constrained('specialty')->default(1);
-            $table->foreignId('doctor_id')->constrained('doctor');
-            $table->foreignId('patient_id')->constrained('patient');
+            $table->foreignId('doctor_id')->constrained('doctor')->onDelete('cascade');
             $table->timestamps();
         });
     }
