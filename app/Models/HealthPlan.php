@@ -10,10 +10,10 @@ class HealthPlan extends Model
     use HasFactory;
 
     protected $table = 'health_plan';
-    protected $fillable = ['name', 'price'];
+    protected $fillable = ['name', 'price', 'max_people'];
 
     public function patient()
     {
-        return $this->belongsTo(Patient::class, 'patient_plan');
+        return $this->belongsToMany(Patient::class, 'patient_plan', 'plan_id', 'patient_id');
     }
 }

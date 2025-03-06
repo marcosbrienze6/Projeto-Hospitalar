@@ -21,6 +21,6 @@ class Patient extends Model
 
     public function plan()
     {
-        return $this->belongsTo(HealthPlan::class, 'patient_plan');
+        return $this->belongsToMany(HealthPlan::class, 'patient_plan', 'patient_id', 'plan_id');
     }
 }
