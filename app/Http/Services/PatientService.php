@@ -8,35 +8,42 @@ use App\Models\PatientPlan;
 
 class PatientService
 {
-    public function getAll()
+    public function getFilteredPatient($data)
     {
-        return Patient::all();
+        $name = $data['name'] ?? null;
+        return Patient::with('plan')->when($name ?? null, fn($q) => $q->where('name', 'LIKE', "%$name%"))->get();
     }
-
-    public function get($id)
-    {
-        return Patient::find($id);
-    }
-
+    
     public function create($data)
     {
         return Patient::create($data);
     }
-
+    
     public function update($patientId, $data)
     {
         $user = Patient::find($patientId);
         $user->update($data);
         return $user;
     }
-
-    public function addPlan($patientId, $planId)
+    
+    public function delete($id) 
     {
-        $plan = PatientPlan::where('patient_id', $patientId)
+        $user = Patient::find($id);
+
+        if (!$user) {
+            throw new \Exception('Paciente não encontrado.');
+        }
+
+        return $user->delete();
+    }
+
+    public function addPatientToPlan($patientId, $planId)
+    {
+        $patientExists = PatientPlan::where('patient_id', $patientId)
         ->where('plan_id', $planId)
         ->exists();
 
-        if($plan){
+        if($patientExists){
             throw new \Exception('Não é possivel adicionar o mesmo plano duas vezes.');
         }
 
@@ -46,7 +53,14 @@ class PatientService
         ]);
     }
 
-    public function addAgreement($patientId, $agreementId)
+    public function removePatientFromPlan($patientId, $planId)
+    {
+        $plan = PatientPlan::where('patient_id', $patientId)
+        ->where('plan_id', $planId)
+        ->delete();
+    }
+
+    public function addPatientToAgreement($patientId, $agreementId)
     {
         $agreement = MedicalAgreement::where('patient_id', $patientId)
         ->where('agreement_id', $agreementId)
@@ -62,21 +76,10 @@ class PatientService
         ]);
     }
 
-    public function removeAgreement($patientId, $agreementId)
+    public function removePatientFromAgreement($patientId, $agreementId)
     {
         $agreement = MedicalAgreement::where('patient_id', $patientId)
         ->where('agreement_id', $agreementId)
         ->delete();
-    }
-
-    public function deletePatient($id) 
-    {
-        $user = Patient::find($id);
-
-        if (!$user) {
-            throw new \Exception('Paciente não encontrado.');
-        }
-
-        return $user->delete();
     }
 }

@@ -26,6 +26,7 @@ Route::prefix('auth')->group(function () {
     Route::prefix('patient')->group(function () {
         Route::post('/', [PatientController::class, 'create']);
         Route::put('/{id}', [PatientController::class, 'update']);
+        Route::get('/get', [PatientController::class, 'getFilteredPatient']);
         Route::delete('/{id}', [PatientController::class, 'delete']);
 
         Route::prefix('agreement')->group(function () {
@@ -34,8 +35,8 @@ Route::prefix('auth')->group(function () {
         });
 
         Route::prefix('plan')->group(function () {
-            Route::post('/add', [PatientController::class, 'addPlan']);
-            Route::post('/remove', [PatientController::class, 'removePlan']);
+            Route::post('/add', [PatientController::class, 'addPatientToPlan']);
+            Route::post('/remove', [PatientController::class, 'removePatientFromPlan']);
         });
     });
 
