@@ -4,12 +4,13 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\UserController;
+use App\Mail\ConfirmationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::get('test', function () {
+    return new App\Mail\ConfirmationMail();
+});
 
 Route::prefix('auth')->group(function () {
     Route::middleware('auth.jwt')->group(function () {
