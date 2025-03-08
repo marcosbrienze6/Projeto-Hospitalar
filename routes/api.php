@@ -30,7 +30,7 @@ Route::prefix('auth')->group(function () {
         Route::delete('/{id}', [PatientController::class, 'delete']);
 
         Route::prefix('agreement')->group(function () {
-            Route::post('/add', [PatientController::class, 'addAgreement']);
+            Route::post('/add', [PatientController::class, 'addPatientToAgreement']);
             Route::delete('/remove', [PatientController::class, 'removeAgreement']);
         });
 

@@ -19,9 +19,9 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // Agreement::factory(10)->create();
-        // Specialty::factory(10)->create();
-        // Patient::factory(15)->create();
+        Agreement::factory(10)->create();
+        Specialty::factory(10)->create();
+        Patient::factory(15)->create();
         HealthPlan::factory(3)->create();
     }
 }

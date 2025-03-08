@@ -42,9 +42,9 @@ class PatientController extends Controller
     public function create(CreatePatientRequest $request)
     {
         $data = $request->validated();
-        $doctor = $this->patientService->create($data);
+        $patient = $this->patientService->create($data);
 
-        return response()->json(['error' => false, 'message' => "Paciente registrado com sucesso.", 'user' => $doctor]);
+        return response()->json(['error' => false, 'message' => "Paciente registrado com sucesso.", 'user' => $patient]);
     }
 
     public function addPatientToPlan(AddPatientRequest $request)
@@ -90,7 +90,7 @@ class PatientController extends Controller
         ]); 
     }
 
-    public function addToPatientAgreement(AddPatientRequest $request)
+    public function addPatientToAgreement(AddPatientRequest $request)
     {
         $data = $request->validated();
 
