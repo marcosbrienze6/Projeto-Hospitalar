@@ -49,6 +49,7 @@ class PatientService
 
         return PatientPlan::create([
             'patient_id' => $patientId,
+            'is_owner' => true,
             'plan_id' => $planId
         ]);
     }
