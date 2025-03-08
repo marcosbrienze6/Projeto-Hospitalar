@@ -54,7 +54,29 @@ class PatientController extends Controller
         $plan = HealthPlan::findOrFail($data['plan_id']);
         $patient = Patient::findOrFail($data['patient_id']);
         
-        $result = $this->patientService->addPatientToPlan($data['patient_id'], $data['plan_id']);
+        $patientExists = PatientPlan::where('patient_id', $data['patient_id'])
+        ->where('plan_id', $data['plan_id'])
+        ->exists();
+
+        if ($patientExists) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Este paciente já está registrado neste plano.',
+            ], 400);
+        }
+
+        $isOwner = false;
+        $responsibleId = null;
+
+        if ($plan->id == 3) { 
+            $currentPatientsCount = $plan->patients()->count();
+            if ($currentPatientsCount == 0) {
+                $isOwner = true; 
+            }    
+            $responsibleId = $data['patient_id'];       
+        }
+
+        $result = $this->patientService->addPatientToPlan($data['patient_id'], $data['plan_id'], $isOwner, $responsibleId);
         
         return response()->json([
         'error' => false,

@@ -12,8 +12,14 @@ class HealthPlan extends Model
     protected $table = 'health_plan';
     protected $fillable = ['name', 'price', 'max_people'];
 
-    public function patient()
+    public function patients()
     {
-        return $this->belongsToMany(Patient::class, 'patient_plan', 'plan_id', 'patient_id');
+        return $this->belongsToMany(Patient::class, 'patient_health_plan', 'plan_id', 'patient_id')
+        ->withTimestamps();
+    }
+
+    public function owners()
+    {
+        return $this->patients()->wherePivot('is_owner', true);
     }
 }
