@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('plan_id')->nullable()->constrained('health_plan');
             $table->foreignId('patient_id')->nullable()->constrained('patient')->onDelete('cascade');
-
-     $table->boolean('is_owner')->default(true); //trocar default pra false
-    $table->foreignId('responsible_id')->nullable()->constrained('patients')->onDelete('cascade'); // DAR REFRESH PRA ADICIONAR ISSO
-
+            $table->boolean('is_owner')->default(false);
+            $table->foreignId('responsible_id')->nullable()->constrained('patient')->onDelete('cascade'); 
             $table->string('relationship')->nullable();
             $table->timestamps();
         });

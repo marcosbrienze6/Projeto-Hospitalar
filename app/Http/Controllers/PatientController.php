@@ -8,6 +8,7 @@ use App\Http\Requests\CreatePatientRequest;
 use App\Http\Requests\GetFilteredPatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Http\Services\PatientService;
+use App\Http\Services\PaymentService;
 use App\Models\Agreement;
 use App\Models\HealthPlan;
 use App\Models\Patient;
@@ -16,9 +17,11 @@ use App\Models\PatientPlan;
 class PatientController extends Controller
 {
     protected $patientService;
+    protected $paymentService;
 
-    public function __construct(PatientService $patientService) {
+    public function __construct(PatientService $patientService, PaymentService $paymentService) {
         $this->patientService = $patientService;
+        $this->paymentService = $paymentService;
     }
 
    public function getFilteredPatient(GetFilteredPatientRequest $request)
@@ -54,14 +57,51 @@ class PatientController extends Controller
         $plan = HealthPlan::findOrFail($data['plan_id']);
         $patient = Patient::findOrFail($data['patient_id']);
         
-        $result = $this->patientService->addPatientToPlan($data['patient_id'], $data['plan_id']);
+        $patientExists = PatientPlan::where('patient_id', $data['patient_id'])
+        ->where('plan_id', $data['plan_id'])
+        ->exists();
+
+        if ($patientExists) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Este paciente já está registrado neste plano.',
+            ], 400);
+        }
+
+        $paymentResult = $this->paymentService->processPayment(
+            $plan->price, 
+            'brl',         
+            $data['source'], 
+            "Pagamento do plano {$plan->name} para paciente {$patient->name}"
+        );
+
+        if (!$paymentResult['success']) {
+            return response()->json([
+                'error' => true,
+                'message' => $paymentResult['message']
+            ], 400);
+        }
+
+        $isOwner = false;
+        $responsibleId = null;
+
+        if ($plan->id == 3 || $plan->id === 2) { 
+            $currentPatientsCount = $plan->patients()->count();
+            if ($currentPatientsCount == 0) {
+                $isOwner = true; 
+            }    
+            $responsibleId = $data['patient_id'];       
+        }
+
+        $result = $this->patientService->addPatientToPlan($data['patient_id'], $data['plan_id'], $isOwner, $responsibleId);
         
         return response()->json([
         'error' => false,
         'message' => 'Paciente adicionado ao plano com sucesso',
         'Paciente' => $patient,
         'Convênio' => $plan,
-        'Dados da adição' => $result
+        'Dados da adição' => $result,
+        'Pagamento' => $paymentResult['data']
         ]);
     }
 
@@ -72,9 +112,9 @@ class PatientController extends Controller
         $patient = Patient::findOrFail($data['patient_id']);
         $plan = HealthPlan::findOrFail($data['plan_id']);
 
-        $res = $this->patientService->removePatientFromPlan($data['patient_id'], $data['plan_id']);
+        $result = $this->patientService->removePatientFromPlan($data['patient_id'], $data['plan_id']);
 
-        if ($res === 0) {
+        if ($result === 0) {
             return response()->json([
             'error' => true,
             'message' => 'Nenhuma relação encontrada para deletar.'
@@ -86,7 +126,7 @@ class PatientController extends Controller
         'message' => 'Paciente removido do plano com sucesso',
         'Paciente' => $patient,
         'Convênio' => $plan,
-        'Registros deletados' => $res
+        'Registros deletados' => $result
         ]); 
     }
 

@@ -37,7 +37,7 @@ class PatientService
         return $user->delete();
     }
 
-    public function addPatientToPlan($patientId, $planId)
+    public function addPatientToPlan($patientId, $planId, $isOwner = false, $responsibleId = null)
     {
         $patientExists = PatientPlan::where('patient_id', $patientId)
         ->where('plan_id', $planId)
@@ -49,8 +49,9 @@ class PatientService
 
         return PatientPlan::create([
             'patient_id' => $patientId,
-            'is_owner' => true,
-            'plan_id' => $planId
+            'plan_id' => $planId,
+            'is_owner' => $isOwner,
+            'responsible_id' => $responsibleId
         ]);
     }
 

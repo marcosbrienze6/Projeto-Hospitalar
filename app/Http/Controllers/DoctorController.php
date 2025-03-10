@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddDoctorRequest;
 use App\Http\Requests\CreateDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
+
 use App\Http\Services\DoctorService;
+
 use App\Models\Agreement;
 use App\Models\Doctor;
 use App\Models\MedicalAgreement;
 use App\Models\MedicalSpecialty;
 use App\Models\Specialty;
+
 use Illuminate\Support\Facades\Auth;
 
 
