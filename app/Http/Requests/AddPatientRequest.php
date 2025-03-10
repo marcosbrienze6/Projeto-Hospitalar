@@ -25,6 +25,7 @@ class AddPatientRequest extends FormRequest
             'agreement_id' => 'nullable|exists:agreement,id',
             'is_owner' => 'nullable',
             'plan_id' => 'nullable|exists:health_plan,id',
+            'source' => 'nullable',
             'patient_id' => 'required|exists:patient,id'
         ];
     }

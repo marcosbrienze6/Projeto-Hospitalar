@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,8 @@ Route::prefix('auth')->group(function () {
         Route::prefix('plan')->group(function () {
             Route::post('/add', [PatientController::class, 'addPatientToPlan']);
             Route::post('/remove', [PatientController::class, 'removePatientFromPlan']);
+
+            Route::post('/payment', [PaymentController::class, 'payment']);
         });
     });
 
