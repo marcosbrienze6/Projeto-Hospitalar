@@ -8,5 +8,5 @@ class MedicalAgreement extends Model
 {
     protected $table = 'medical_agreement';
     
-    protected $fillable = ['agreement_id', 'doctor_id'];
+    protected $fillable = ['agreement_id', 'doctor_id', 'patient_id'];
 }

@@ -3,6 +3,8 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
 use App\Mail\ConfirmationMail;
 use Illuminate\Http\Request;
@@ -22,6 +24,25 @@ Route::prefix('auth')->group(function () {
         
         Route::post('/add-agreement', [DoctorController::class, 'addDoctorToAgreement']);
         Route::post('/add-specialty', [DoctorController::class, 'addDoctorToSpecialty']);
+    });
+
+    Route::prefix('patient')->group(function () {
+        Route::post('/', [PatientController::class, 'create']);
+        Route::put('/{id}', [PatientController::class, 'update']);
+        Route::get('/get', [PatientController::class, 'getFilteredPatient']);
+        Route::delete('/{id}', [PatientController::class, 'delete']);
+
+        Route::prefix('agreement')->group(function () {
+            Route::post('/add', [PatientController::class, 'addPatientToAgreement']);
+            Route::delete('/remove', [PatientController::class, 'removeAgreement']);
+        });
+
+        Route::prefix('plan')->group(function () {
+            Route::post('/add', [PatientController::class, 'addPatientToPlan']);
+            Route::post('/remove', [PatientController::class, 'removePatientFromPlan']);
+
+            Route::post('/payment', [PaymentController::class, 'payment']);
+        });
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
