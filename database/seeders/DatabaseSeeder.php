@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Agreement;
+use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Specialty;
 use App\Models\User;
@@ -17,9 +18,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-
-        // Agreement::factory(10)->create();
-        // Specialty::factory(10)->create();
+        Doctor::factory(10)->create();
+        Patient::factory(10)->create();
+        Agreement::factory(10)->create();
+        Specialty::factory(10)->create();
         Patient::factory(15)->create();
 
     }

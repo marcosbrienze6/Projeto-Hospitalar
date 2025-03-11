@@ -19,6 +19,7 @@ Route::prefix('auth')->group(function () {
         Route::post('/', [DoctorController::class, 'create']);
         Route::put('/{id}', [DoctorController::class, 'update']);
         Route::delete('/{id}', [DoctorController::class, 'delete']);
+        
         Route::post('/add-agreement', [DoctorController::class, 'addDoctorToAgreement']);
         Route::post('/add-specialty', [DoctorController::class, 'addDoctorToSpecialty']);
     });
