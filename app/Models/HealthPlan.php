@@ -10,7 +10,12 @@ class HealthPlan extends Model
     use HasFactory;
 
     protected $table = 'health_plan';
-    protected $fillable = ['name', 'price', 'max_people'];
+
+    protected $fillable = [
+        'name',
+        'price',
+        'max_people'
+    ];
 
     public function patients()
     {

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateAppointmentRequest;
 use App\Http\Services\AppointmentService;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\PatientDiagnosis;
 
 class AppointmentController extends Controller
 {
@@ -19,44 +20,61 @@ class AppointmentController extends Controller
     public function create(CreateAppointmentRequest $request)
     {
         $data = $request->validated();
-        $appointment = $this->appointmentService->create($data);
-
+        
         $doctor = Doctor::with('specialty', 'agreement')->findOrFail($data['doctor_id']);
-        $patient = Patient::findOrFail($data['patient_id']);
-
-        $doctorAgreementIds = $doctor->agreement->pluck('id')->toArray(); 
-
-        if (!in_array($patient->agreement_id, $doctorAgreementIds)) {
+        $patient = Patient::with('agreement')->findOrFail($data['patient_id']);
+        
+        $doctorAgreementIds = $doctor->agreement->pluck('id')->toArray();
+        $patientAgreementIds = $patient->agreement->pluck('id')->toArray();
+        
+        if (!array_intersect($patientAgreementIds, $doctorAgreementIds)) {
             return response()->json([
                 'error' => true,
                 'message' => 'O paciente só pode marcar consultas com médicos do mesmo convênio.'
             ], 422);
         }
+        
+        $diagnosis = $this->findDiagnosis($data['symptoms'] ?? []);
 
+        $data['diagnosis_id'] = $diagnosis ? $diagnosis->id : null;
+        $appointment = $this->appointmentService->create($data);
+        
         return response()->json([
         'error' => false,
         'message' => 'Consulta marcada com sucesso.',
-        'appointment' => $appointment,
+        'Consulta' => $appointment,
         'Paciente' => $patient,
-        'Médico responsável' => $doctor
+        'Médico responsável' => $doctor,
+        'Diagnóstico' => $diagnosis
         ]);
     }
 
-    public function getAll()
+    private function findDiagnosis(array $symptoms)
     {
-        $allAppointments = $this->appointmentService->getAll();
-        return response()->json(['error' => false,'Consultas encontradas' => $allAppointments]);
+        if (empty($symptoms)) {
+            return null;
+        }
+
+        return PatientDiagnosis::whereJsonContains('symptoms', $symptoms)->first();
     }
 
-    public function getPerId($id)
-    {
-        $appointment = $this->appointmentService->get($id);
+    // public function getFilteredPatient(GetFilteredPatientRequest $request)
+    // {
+    //     $data = $request->validated();
+    //     $patient = $this->patientService->getFilteredPatient($data);
 
-        return response()->json([
-            'error' => false,
-            'Consulta encontrada' => $appointment
-        ]);
-    }
+    //     if($patient->isEmpty()) {
+    //         return response()->json([
+    //         'error' => true,
+    //         'message' => 'Paciente não encontrado.'
+    //         ], 404);
+    //     }
+
+    //     return response()->json([
+    //     'error' => false,
+    //     'paciente' => $patient,
+    //     ]);
+    // }
 
     public function update(UpdateAppointmentRequest $request, $appointmentId)
     {

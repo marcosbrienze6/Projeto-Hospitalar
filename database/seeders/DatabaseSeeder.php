@@ -3,12 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Agreement;
-<<<<<<< HEAD
 use App\Models\Doctor;
-=======
 use App\Models\HealthPlan;
->>>>>>> main
 use App\Models\Patient;
+use App\Models\PatientDiagnosis;
 use App\Models\Specialty;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -22,15 +20,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-<<<<<<< HEAD
-        Doctor::factory(10)->create();
-        Patient::factory(10)->create();
-=======
-
->>>>>>> main
-        Agreement::factory(10)->create();
-        Specialty::factory(10)->create();
-        Patient::factory(15)->create();
-        HealthPlan::factory(3)->create();
+        // Doctor::factory(10)->create();
+        // Patient::factory(10)->create();
+        // Agreement::factory(10)->create();
+        // Specialty::factory(10)->create();
+        // HealthPlan::factory(3)->create();
+        PatientDiagnosis::factory(20)->create();
     }
 }

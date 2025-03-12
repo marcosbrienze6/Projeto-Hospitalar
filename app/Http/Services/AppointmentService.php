@@ -8,15 +8,11 @@ use Illuminate\Support\Str;
 
 class AppointmentService
 {
-    public function getAll()
-    {
-        return Appointment::all();
-    }
-
-    public function get($id)
-    {
-        return Appointment::find($id);
-    }
+    // public function getFilteredAppointment($data)
+    // {
+    //     $name = $data['name'] ?? null;
+    //     return Patient::with('plan')->when($name ?? null, fn($q) => $q->where('name', 'LIKE', "%$name%"))->get();
+    // }
 
     public function create($data)
     {
