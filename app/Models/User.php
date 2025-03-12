@@ -22,7 +22,6 @@ class User extends Authenticatable implements ContractsJWTSubject
     protected $fillable = [
         'name',
         'email',
-        'access_level_id',
         'password',
     ];
 

@@ -6,12 +6,13 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
+use App\Mail\ConfirmationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::get('test', function () {
+    return new App\Mail\ConfirmationMail();
+});
 
 Route::prefix('auth')->group(function () {
     Route::middleware('auth.jwt')->group(function () {
@@ -20,6 +21,7 @@ Route::prefix('auth')->group(function () {
         Route::post('/', [DoctorController::class, 'create']);
         Route::put('/{id}', [DoctorController::class, 'update']);
         Route::delete('/{id}', [DoctorController::class, 'delete']);
+        
         Route::post('/add-agreement', [DoctorController::class, 'addDoctorToAgreement']);
         Route::post('/add-specialty', [DoctorController::class, 'addDoctorToSpecialty']);
     });

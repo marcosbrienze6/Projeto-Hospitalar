@@ -4,15 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Patient extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory;
     
     protected $table = 'patient';
 
-    protected $fillable = ['name', 'address', 'cpf', 'phone_number'];
+    protected $fillable = ['name',
+        'address',
+        'cpf',
+        'phone_number'
+    ];
 
     public function agreement()
     {

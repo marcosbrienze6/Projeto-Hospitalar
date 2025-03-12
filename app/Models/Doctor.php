@@ -12,7 +12,11 @@ class Doctor extends Model
 
     protected $table = 'doctor';
 
-    protected $fillable = ['name', 'CRM', 'hire_of_date'];
+    protected $fillable = [
+        'name',
+        'CRM',
+        'hire_of_date'
+    ];
 
     public function agreement()
     {
