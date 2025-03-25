@@ -2,121 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddDoctorRequest;
-use App\Http\Requests\CreateDoctorRequest;
-use App\Http\Requests\UpdateDoctorRequest;
-
+use App\Http\Requests\{AddDoctorRequest, CreateDoctorRequest, UpdateDoctorRequest};
 use App\Http\Services\DoctorService;
-
-use App\Models\Agreement;
-use App\Models\Doctor;
-use App\Models\MedicalAgreement;
-use App\Models\MedicalSpecialty;
-use App\Models\Specialty;
-
+use App\Models\{Agreement, Doctor, MedicalAgreement, MedicalSpecialty, Specialty};
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Http\JsonResponse;
 
 class DoctorController extends Controller
 {
-    protected $serviceInstance;
+    protected DoctorService $doctorService;
 
-    public function __construct(DoctorService $serviceInstance) {
-        $this->serviceInstance = $serviceInstance;
-    }
-
-    public function indexAll()
+    public function __construct(DoctorService $doctorService)
     {
-        $allUsers = $this->serviceInstance->getAll();
-        return response()->json(['error' => false,'users' => $allUsers]);
-
+        $this->doctorService = $doctorService;
     }
 
-    public function index($doctorId)
+    public function indexAll(): JsonResponse
     {
-        $doctor = $this->serviceInstance->get($doctorId);
-        return response()->json(['error' => false, 'message' => "Médico encontrado.", 'user' => $doctor]);
+        return response()->json(['error' => false, 'users' => $this->doctorService->getAll()]);
     }
 
-    public function create(CreateDoctorRequest $request)
+    public function index(int $doctorId): JsonResponse
+    {
+        return response()->json(['error' => false, 'message' => 'Médico encontrado.', 'user' => $this->doctorService->get($doctorId)]);
+    }
+
+    public function create(CreateDoctorRequest $request): JsonResponse
+    {
+        return response()->json(['error' => false, 'message' => 'Médico registrado com sucesso.', 'user' => $this->doctorService->create($request->validated())]);
+    }
+
+    private function checkExistingRelation($model, array $conditions): bool
+    {
+        return $model::where($conditions)->exists();
+    }
+
+    public function addDoctorToAgreement(AddDoctorRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $doctor = $this->serviceInstance->create($data);
-
-        return response()->json(['error' => false, 'message' => "Médico registrado com sucesso.", 'user' => $doctor]);
-    }
-
-    public function addDoctorToAgreement(AddDoctorRequest $request)
-    {
-        $data = $request->validated();
-
         $doctor = Doctor::findOrFail($data['doctor_id']);
         $agreement = Agreement::findOrFail($data['agreement_id']);
 
-        $existingDoctor = MedicalAgreement::where('agreement_id', $agreement->id)
-        ->where('doctor_id', $doctor->id)
-        ->exists();
-                                                                   
-        if ($existingDoctor) {
-            return response()->json([
-            'error' => true,
-            'message' => 'Não é possível adicionar o mesmo convênio duas vezes.'
-            ]);
-        } 
-
-        $res = MedicalAgreement::create($data);
+        if ($this->checkExistingRelation(MedicalAgreement::class, ['agreement_id' => $agreement->id, 'doctor_id' => $doctor->id])) {
+            return response()->json(['error' => true, 'message' => 'Não é possível adicionar o mesmo convênio duas vezes.']);
+        }
 
         return response()->json([
             'message' => 'Médico adicionado ao convênio com sucesso',
             'Médico' => $doctor,
             'Convênio' => $agreement,
-            'Dados da adição' => $res,
+            'Dados da adição' => MedicalAgreement::create($data),
         ]);
     }
 
-    public function addDoctorToSpecialty(AddDoctorRequest $request)
+    public function addDoctorToSpecialty(AddDoctorRequest $request): JsonResponse
     {
         $data = $request->validated();
-        
         $doctor = Doctor::findOrFail($data['doctor_id']);
         $specialty = Specialty::findOrFail($data['specialty_id']);
-        
-        $existingDoctor = MedicalSpecialty::where('specialty_id', $specialty->id)
-        ->where('doctor_id', $doctor->id)
-        ->exists();
-        
-        if ($existingDoctor) {
-            return response()->json([
-            'error' => true,
-            'message' => 'Não é possível adicionar a mesma especialidade duas vezes.'
-            ]);
-        } 
 
-        $specialty = MedicalSpecialty::create($data);
+        if ($this->checkExistingRelation(MedicalSpecialty::class, ['specialty_id' => $specialty->id, 'doctor_id' => $doctor->id])) {
+            return response()->json(['error' => true, 'message' => 'Não é possível adicionar a mesma especialidade duas vezes.']);
+        }
 
         return response()->json([
-            'message' => 'Médico adicionado ao convênio com sucesso',
+            'message' => 'Médico adicionado à especialidade com sucesso',
             'Especialidade' => $specialty,
-            'Médico' => $doctor
+            'Médico' => $doctor,
+            'Dados da adição' => MedicalSpecialty::create($data),
         ]);
     }
 
-    public function update(UpdateDoctorRequest $request, $doctorId)
+    public function update(UpdateDoctorRequest $request, int $doctorId): JsonResponse
     {
-        $data = $request->validated();
-        $doctor = $this->serviceInstance->update($doctorId, $data);
-
-        return response()->json(['error' => false, 'message' => "Médico atualizado com sucesso.", 'user' => $doctor]);
+        return response()->json(['error' => false, 'message' => 'Médico atualizado com sucesso.', 'user' => $this->doctorService->update($doctorId, $request->validated())]);
     }
 
-    public function delete($doctorId)
+    public function delete(int $doctorId): JsonResponse
     {
-        $user = Auth::user();
-        if (!$user) {
+        if (!Auth::check()) {
             return response()->json(['error' => true, 'message' => 'Usuário não autenticado.'], 401);
         }
-
-       $doctor = $this->serviceInstance->delete($doctorId);
-       return response()->json(['error' => false, 'message' => "Médico deletado com sucesso.", 'Usuário deletado' => $doctor]);
+        
+        return response()->json(['error' => false, 'message' => 'Médico deletado com sucesso.', 'Usuário deletado' => $this->doctorService->delete($doctorId)]);
     }
 }
+
