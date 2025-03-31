@@ -1,0 +1,14 @@
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    password: String!
+}
+
+type Mutation {
+    createUser(name: String!, email: String!, password: String!): User
+}
+
+type Query {
+    getUser(id: ID! @whereKey): User @find
+}
