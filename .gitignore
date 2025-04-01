@@ -23,3 +23,5 @@ yarn-error.log
 /.zed
 .docker/mysql/dbdata/
 .docker
+composer.json
+composer.lock

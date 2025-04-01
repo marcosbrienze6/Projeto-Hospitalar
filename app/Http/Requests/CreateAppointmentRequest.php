@@ -27,7 +27,8 @@ class CreateAppointmentRequest extends FormRequest
             'doctor_id' => 'required|exists:doctor,id',
             'appointment_date' => 'required|date|after_or_equal:today',
             'appointment_time' => 'required|date_format:H:i',
-            'status' => 'required|in:active,cancelled,completed'
+            'status' => 'required|in:active,cancelled,completed',
+            'symptoms' => 'required|array'
         ];
     }
 }

@@ -2,188 +2,121 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddPatientRequest;
-use App\Http\Requests\AddPatientToPlanRequest;
-use App\Http\Requests\CreatePatientRequest;
-use App\Http\Requests\GetFilteredPatientRequest;
-use App\Http\Requests\UpdatePatientRequest;
-use App\Http\Services\PatientService;
-use App\Http\Services\PaymentService;
-use App\Models\Agreement;
-use App\Models\HealthPlan;
-use App\Models\Patient;
-use App\Models\PatientPlan;
+use App\Http\Requests\{AddPatientRequest, AddPatientToPlanRequest, CreatePatientRequest, GetFilteredPatientRequest, UpdatePatientRequest};
+use App\Http\Services\{PatientService, PaymentService};
+use App\Models\{Agreement, HealthPlan, Patient, PatientPlan};
+use Illuminate\Http\JsonResponse;
 
 class PatientController extends Controller
 {
-    protected $patientService;
-    protected $paymentService;
+    protected PatientService $patientService;
+    protected PaymentService $paymentService;
 
     public function __construct(PatientService $patientService, PaymentService $paymentService) {
         $this->patientService = $patientService;
         $this->paymentService = $paymentService;
     }
 
-   public function getFilteredPatient(GetFilteredPatientRequest $request)
-   {
-        $data = $request->validated();
-        $patient = $this->patientService->getFilteredPatient($data);
-
-        if($patient->isEmpty()) {
-            return response()->json([
-            'error' => true,
-            'message' => 'Paciente não encontrado.'
-            ], 404);
-        }
-
-        return response()->json([
-        'error' => false,
-        'paciente' => $patient,
-        ]);
-   }
-
-    public function create(CreatePatientRequest $request)
+    public function getFilteredPatient(GetFilteredPatientRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $patient = $this->patientService->create($data);
+        $patient = $this->patientService->getFilteredPatient($request->validated());
 
+        return $patient->isEmpty()
+            ? response()->json(['error' => true, 'message' => 'Paciente não encontrado.'], 404)
+            : response()->json(['error' => false, 'paciente' => $patient]);
+    }
+
+    public function create(CreatePatientRequest $request): JsonResponse
+    {
+        $patient = $this->patientService->create($request->validated());
         return response()->json(['error' => false, 'message' => "Paciente registrado com sucesso.", 'user' => $patient]);
     }
 
-    public function addPatientToPlan(AddPatientRequest $request)
+    public function addPatientToPlan(AddPatientRequest $request): JsonResponse
     {   
         $data = $request->validated();
-
         $plan = HealthPlan::findOrFail($data['plan_id']);
         $patient = Patient::findOrFail($data['patient_id']);
-        
-        $patientExists = PatientPlan::where('patient_id', $data['patient_id'])
-        ->where('plan_id', $data['plan_id'])
-        ->exists();
 
-        if ($patientExists) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Este paciente já está registrado neste plano.',
-            ], 400);
+        if ($this->checkExistingRelation(PatientPlan::class, $data['patient_id'], $data['plan_id'])) {
+            return response()->json(['error' => true, 'message' => 'Este paciente já está registrado neste plano.'], 400);
         }
 
         $paymentResult = $this->paymentService->processPayment(
-            $plan->price, 
-            'brl',         
-            $data['source'], 
-            "Pagamento do plano {$plan->name} para paciente {$patient->name}"
+            $plan->price, 'brl', $data['source'], "Pagamento do plano {$plan->name} para paciente {$patient->name}"
         );
 
         if (!$paymentResult['success']) {
-            return response()->json([
-                'error' => true,
-                'message' => $paymentResult['message']
-            ], 400);
+            return response()->json(['error' => true, 'message' => $paymentResult['message']], 400);
         }
 
-        $isOwner = false;
-        $responsibleId = null;
-
-        if ($plan->id == 3 || $plan->id === 2) { 
-            $currentPatientsCount = $plan->patients()->count();
-            if ($currentPatientsCount == 0) {
-                $isOwner = true; 
-            }    
-            $responsibleId = $data['patient_id'];       
-        }
-
+        [$isOwner, $responsibleId] = $this->determinePlanOwnership($plan, $data['patient_id']);
         $result = $this->patientService->addPatientToPlan($data['patient_id'], $data['plan_id'], $isOwner, $responsibleId);
         
         return response()->json([
-        'error' => false,
-        'message' => 'Paciente adicionado ao plano com sucesso',
-        'Paciente' => $patient,
-        'Convênio' => $plan,
-        'Dados da adição' => $result,
-        'Pagamento' => $paymentResult['data']
+            'error' => false, 'message' => 'Paciente adicionado ao plano com sucesso',
+            'Paciente' => $patient, 'Convênio' => $plan, 'Dados da adição' => $result, 'Pagamento' => $paymentResult['data']
         ]);
     }
 
-    public function removePatientFromPlan(UpdatePatientRequest $request)
+    public function removePatientFromPlan(UpdatePatientRequest $request): JsonResponse
     {
-        $data = $request->validated();
-
-        $patient = Patient::findOrFail($data['patient_id']);
-        $plan = HealthPlan::findOrFail($data['plan_id']);
-
-        $result = $this->patientService->removePatientFromPlan($data['patient_id'], $data['plan_id']);
-
-        if ($result === 0) {
-            return response()->json([
-            'error' => true,
-            'message' => 'Nenhuma relação encontrada para deletar.'
-            ], 404);
-        }
-
-        return response()->json([
-        'error' => false,
-        'message' => 'Paciente removido do plano com sucesso',
-        'Paciente' => $patient,
-        'Convênio' => $plan,
-        'Registros deletados' => $result
-        ]); 
+        return $this->removeRelation(Patient::class, HealthPlan::class, 'plan_id', 'Paciente removido do plano com sucesso');
     }
 
-    public function addPatientToAgreement(AddPatientRequest $request)
+    public function addPatientToAgreement(AddPatientRequest $request): JsonResponse
     {
-        $data = $request->validated();
-
-        $patient = Patient::findOrFail($data['patient_id']);
-        $agreement = Agreement::findOrFail($data['agreement_id']);
-        
-        $result = $this->patientService->addPatientToAgreement($data['patient_id'], $data['agreement_id']);
-        
-        return response()->json([
-        'error' => false,
-        'message' => 'Paciente adicionado ao convênio com sucesso',
-        'Paciente' => $patient,
-        'Convênio' => $agreement,
-        'Dados da adição' => $result
-        ]);
+        return $this->addRelation(Patient::class, Agreement::class, 'agreement_id', 'Paciente adicionado ao convênio com sucesso');
     }
 
-    public function removePatientFromAgreement(UpdatePatientRequest $request)
+    public function removePatientFromAgreement(UpdatePatientRequest $request): JsonResponse
     {
-        $data = $request->validated();
-
-        $patient = Patient::findOrFail($data['patient_id']);
-        $agreement = Agreement::findOrFail($data['agreement_id']);
-
-        $res = $this->patientService->removePatientFromAgreement($data['patient_id'], $data['agreement_id']);
-
-        if ($res === 0) {
-            return response()->json([
-            'error' => true,
-            'message' => 'Nenhuma relação encontrada para deletar.'
-            ], 404);
-        }
-
-        return response()->json([
-        'error' => false,
-        'message' => 'Paciente removido do convênio com sucesso',
-        'Paciente' => $patient,
-        'Convênio' => $agreement,
-        'Registros deletados' => $res
-        ]);
+        return $this->removeRelation(Patient::class, Agreement::class, 'agreement_id', 'Paciente removido do convênio com sucesso');
     }
 
-    public function update(UpdatePatientRequest $request, $patientId)
+    public function update(UpdatePatientRequest $request, int $patientId): JsonResponse
     {
-        $data = $request->validated();
-        $patient = $this->patientService->update($patientId, $data);
-
+        $patient = $this->patientService->update($patientId, $request->validated());
         return response()->json(['error' => false, 'message' => "Paciente atualizado com sucesso.", 'user' => $patient]);
     }
 
-    public function delete($patientId)
+    public function delete(int $patientId): JsonResponse
     {
-       $patient = $this->patientService->delete($patientId);
-       return response()->json(['error' => false, 'message' => "Paciente deletado com sucesso.", 'Usuário deletado' => $patient]);
+        $patient = $this->patientService->delete($patientId);
+        return response()->json(['error' => false, 'message' => "Paciente deletado com sucesso.", 'Usuário deletado' => $patient]);
+    }
+
+    private function checkExistingRelation(string $model, int $patientId, int $relatedId): bool
+    {
+        return $model::where('patient_id', $patientId)->where('plan_id', $relatedId)->exists();
+    }
+
+    private function determinePlanOwnership(HealthPlan $plan, int $patientId): array
+    {
+        return in_array($plan->id, [2, 3]) && $plan->patients()->count() === 0
+            ? [true, $patientId]
+            : [false, null];
+    }
+
+    private function addRelation(string $patientModel, string $relatedModel, string $relationId, string $successMessage): JsonResponse
+    {
+        $data = request()->validated();
+        $patient = $patientModel::findOrFail($data['patient_id']);
+        $relation = $relatedModel::findOrFail($data[$relationId]);
+        $result = $this->patientService->{__FUNCTION__}($data['patient_id'], $data[$relationId]);
+        
+        return response()->json(['error' => false, 'message' => $successMessage, 'Paciente' => $patient, 'Convênio' => $relation, 'Dados da adição' => $result]);
+    }
+
+    private function removeRelation(string $patientModel, string $relatedModel, string $relationId, string $successMessage): JsonResponse
+    {
+        $data = request()->validated();
+        $patient = $patientModel::findOrFail($data['patient_id']);
+        $relation = $relatedModel::findOrFail($data[$relationId]);
+        $result = $this->patientService->{__FUNCTION__}($data['patient_id'], $data[$relationId]);
+        
+        return $result === 0
+            ? response()->json(['error' => true, 'message' => 'Nenhuma relação encontrada para deletar.'], 404)
+            : response()->json(['error' => false, 'message' => $successMessage, 'Paciente' => $patient, 'Convênio' => $relation, 'Registros deletados' => $result]);
     }
 }
