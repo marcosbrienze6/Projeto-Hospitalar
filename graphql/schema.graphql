@@ -3,12 +3,15 @@ type User {
     name: String!
     email: String!
     password: String!
+    address: String!
 }
 
 type Mutation {
-    createUser(name: String!, email: String!, password: String!): User
+    createUser(name: String!, email: String!, password: String!): User @create
+    deleteUser(id: ID! @whereKey): User @delete
+    updateUser(id: ID! @whereKey, name: String, email: String): User @update
 }
 
 type Query {
-    getUser(id: ID! @whereKey): User @find
+    getUser(id: ID!): User
 }
